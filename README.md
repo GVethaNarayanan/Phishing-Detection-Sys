@@ -62,17 +62,18 @@ MIT License
 ## 📸 Screenshots
 
 ### Main Interface
-![Main Screen](C:\Users\Dell\OneDrive\Pictures\Screenshots\home.png)
+![Main Screen](screenshots/home.png)
 
 ### Analysis Result
-![Analyse Screen](C:\Users\Dell\OneDrive\Pictures\Screenshots\output.png)
+![Analyse Screen](screenshots/output.png)
 
 ### Result Screen
-![Result Screen](C:\Users\Dell\OneDrive\Pictures\Screenshots\result.png)
+![Result Screen](screenshots/result.png)
 
 
 ⭐ Star this repo if useful
 
 
   
+
 
