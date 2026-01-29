@@ -57,7 +57,22 @@ GitHub: https://github.com/GVethaNarayanan
 MIT License
 
 ---
+---
+
+## 📸 Screenshots
+
+### Main Interface
+![Main Screen](C:\Users\Dell\OneDrive\Pictures\Screenshots\home.png)
+
+### Analysis Result
+![Analyse Screen](C:\Users\Dell\OneDrive\Pictures\Screenshots\output.png)
+
+### Result Screen
+![Result Screen](C:\Users\Dell\OneDrive\Pictures\Screenshots\result.png)
+
 
 ⭐ Star this repo if useful
 
+
   
+
