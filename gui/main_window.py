@@ -6,11 +6,15 @@ Primary GUI interface
 import json
 import os
 from datetime import datetime
-from PyQt5.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout,
-                             QWidget, QLineEdit, QPushButton, QTextEdit,
-                             QLabel, QProgressBar, QTabWidget, QMessageBox,
-                             QListWidget)
+
+from PyQt5.QtWidgets import (
+    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QLineEdit, QPushButton, QTextEdit, QLabel,
+    QProgressBar, QMessageBox, QListWidget, QSizePolicy
+)
+
 from PyQt5.QtCore import QThread, pyqtSignal
+
 
 # Import core modules
 from core.url_analyzer import URLAnalyzer
@@ -20,310 +24,403 @@ from core.heuristics import HeuristicAnalyzer
 from core.scoring_engine import ScoringEngine
 from core.reputation_checker import ReputationChecker
 
+
+# =====================================================
+# ANALYSIS THREAD
+# =====================================================
+
 class AnalysisThread(QThread):
-    """Thread for running website analysis to prevent GUI freezing"""
+
     finished = pyqtSignal(dict)
     error = pyqtSignal(str)
 
-    def __init__(self, url: str, settings: dict):
+    def __init__(self, url, settings):
         super().__init__()
+
         self.url = url
         self.settings = settings
 
+
     def run(self):
+
         try:
-            # Run all analysis modules
             url_analyzer = URLAnalyzer()
             domain_info = DomainInfo()
             ssl_checker = SSLChecker()
-            heuristic_analyzer = HeuristicAnalyzer()
-            scoring_engine = ScoringEngine()
+            heuristic = HeuristicAnalyzer()
+            scoring = ScoringEngine()
 
-            # Get API keys from settings
-            vt_api_key = self.settings.get('api_keys', {}).get('virustotal', '')
-            otx_api_key = self.settings.get('api_keys', {}).get('otx', '')
-            reputation_checker = ReputationChecker(vt_api_key, otx_api_key)
+            vt_key = self.settings.get("api_keys", {}).get("virustotal", "")
+            otx_key = self.settings.get("api_keys", {}).get("otx", "")
 
-            # Step 1: URL analysis
-            url_analysis = url_analyzer.analyze_url(self.url)
-            domain = url_analysis['domain']
+            reputation = ReputationChecker(vt_key, otx_key)
 
-            # Step 2: Domain information
-            whois_info = domain_info.get_whois_info(domain)
-            dns_info = domain_info.get_dns_records(domain)
+            # Step 1: URL
+            url_data = url_analyzer.analyze_url(self.url)
+            domain = url_data["domain"]
 
-            # Step 3: SSL check
-            ssl_info = ssl_checker.check_ssl_certificate(domain)
+            # Step 2: Domain info
+            whois = domain_info.get_whois_info(domain)
+            dns = domain_info.get_dns_records(domain)
 
-            # Step 4: Heuristic analysis
-            heuristics = heuristic_analyzer.analyze_heuristics(self.url, domain)
+            # Step 3: SSL
+            ssl = ssl_checker.check_ssl_certificate(domain)
 
-            # Step 5: Reputation check (API calls)
-            reputation_info = reputation_checker.check_all_reputation(self.url)
+            # Step 4: Heuristics
+            heuristics = heuristic.analyze_heuristics(self.url, domain)
 
-            # Combine results
-            all_results = {
-                'url_analysis': url_analysis,
-                'whois_info': whois_info,
-                'dns_info': dns_info,
-                'ssl_info': ssl_info,
-                'heuristics': heuristics,
-                'reputation': reputation_info
+            # Step 5: Reputation
+            rep = reputation.check_all_reputation(self.url)
+
+            results = {
+                "url_analysis": url_data,
+                "whois_info": whois,
+                "dns_info": dns,
+                "ssl_info": ssl,
+                "heuristics": heuristics,
+                "reputation": rep
             }
 
-            # Step 6: Calculate risk score
-            risk_assessment = scoring_engine.calculate_risk_score(all_results)
-            all_results['risk_assessment'] = risk_assessment
+            # Step 6: Score
+            risk = scoring.calculate_risk_score(results)
+            results["risk_assessment"] = risk
 
-            self.finished.emit(all_results)
+            self.finished.emit(results)
 
         except Exception as e:
             self.error.emit(str(e))
 
+
+# =====================================================
+# MAIN WINDOW
+# =====================================================
+
 class MainWindow(QMainWindow):
+
     def __init__(self, settings=None):
         super().__init__()
+
         self.settings = settings or {}
         self.current_results = None
+
         self.init_ui()
 
+
+    # =================================================
+    # UI SETUP
+    # =================================================
+
     def init_ui(self):
-        """Initialize the user interface"""
+
         self.setWindowTitle("Scam Advisor - Website Trust Analyzer")
-        self.setGeometry(100, 100, 1000, 800)
+        self.setGeometry(100, 100, 1200, 800)
 
-        # Central widget
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
 
-        # Main layout
+        # Central Widget
+        central = QWidget()
+        self.setCentralWidget(central)
+
         main_layout = QHBoxLayout()
-        central_widget.setLayout(main_layout)
+        central.setLayout(main_layout)
 
-        # Left panel (History)
+
+        # ---------------- LEFT PANEL ----------------
+
         left_panel = QWidget()
         left_layout = QVBoxLayout()
         left_panel.setLayout(left_layout)
         left_panel.setMaximumWidth(300)
 
-        # History section
-        history_label = QLabel("Search History")
-        history_label.setStyleSheet("font-weight: bold; font-size: 14px; margin: 10px;")
+        history_label = QLabel("📜 Search History")
+        history_label.setStyleSheet("font-size:16px;font-weight:bold;")
 
         self.history_list = QListWidget()
         self.history_list.itemClicked.connect(self.load_history_item)
 
-        clear_history_btn = QPushButton("Clear History")
-        clear_history_btn.clicked.connect(self.clear_history)
+        clear_btn = QPushButton("🗑 Clear History")
+        clear_btn.clicked.connect(self.clear_history)
 
         left_layout.addWidget(history_label)
         left_layout.addWidget(self.history_list)
-        left_layout.addWidget(clear_history_btn)
+        left_layout.addWidget(clear_btn)
 
-        # Right panel (Main content)
+
+        # ---------------- RIGHT PANEL ----------------
+
         right_panel = QWidget()
         right_layout = QVBoxLayout()
         right_panel.setLayout(right_layout)
 
-        # URL input section
+
+        # URL Input
+
         url_layout = QHBoxLayout()
+
         self.url_input = QLineEdit()
-        self.url_input.setPlaceholderText("Enter website URL to analyze...")
+        self.url_input.setPlaceholderText("Enter website URL...")
         self.url_input.returnPressed.connect(self.start_analysis)
 
-        self.analyze_btn = QPushButton("🔍 Analyze Website")
+        self.analyze_btn = QPushButton("🔍 Analyze")
         self.analyze_btn.clicked.connect(self.start_analysis)
 
-        self.save_btn = QPushButton("💾 Save to History")
+        self.save_btn = QPushButton("💾 Save")
         self.save_btn.clicked.connect(self.save_current_search)
         self.save_btn.setEnabled(False)
 
-        url_layout.addWidget(QLabel("Website URL:"))
-        url_layout.addWidget(self.url_input)
+        url_layout.addWidget(QLabel("Website:"))
+        url_layout.addWidget(self.url_input, 1)
         url_layout.addWidget(self.analyze_btn)
         url_layout.addWidget(self.save_btn)
 
-        # Progress bar
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setVisible(False)
 
-        # Results display
-        self.results_display = QTextEdit()
-        self.results_display.setReadOnly(True)
+        # Progress Bar
 
-        # Add widgets to right layout
+        self.progress = QProgressBar()
+        self.progress.setVisible(False)
+
+
+        # Results Box
+
+        self.results = QTextEdit()
+        self.results.setReadOnly(True)
+
+        self.results.setSizePolicy(
+            QSizePolicy.Expanding,
+            QSizePolicy.Expanding
+        )
+
+
+        # Layout Add
+
         right_layout.addLayout(url_layout)
-        right_layout.addWidget(self.progress_bar)
-        right_layout.addWidget(self.results_display)
+        right_layout.addWidget(self.progress)
+        right_layout.addWidget(self.results)
 
-        # Add panels to main layout
-        main_layout.addWidget(left_panel)
-        main_layout.addWidget(right_panel)
+        main_layout.addWidget(left_panel, 1)
+        main_layout.addWidget(right_panel, 3)
+
 
         # Load history
         self.load_history()
 
+
+    # =================================================
+    # HISTORY
+    # =================================================
+
     def load_history(self):
-        """Load search history from file"""
+
         try:
-            history_file = os.path.join('data', 'history.json')
-            if os.path.exists(history_file):
-                with open(history_file, 'r') as f:
-                    history_data = json.load(f)
-                    for item in history_data:
-                        self.history_list.addItem(f"{item['url']} - {item['risk_level']}")
+            file = os.path.join("data", "history.json")
+
+            if not os.path.exists(file):
+                return
+
+            with open(file, "r") as f:
+                data = json.load(f)
+
+            for item in data:
+                self.history_list.addItem(
+                    f"{item['url']} - {item['risk_level']}"
+                )
+
         except Exception as e:
-            print(f"Error loading history: {e}")
+            print("History error:", e)
+
 
     def save_current_search(self):
-        """Save current search to history"""
-        if hasattr(self, 'current_results'):
-            try:
-                # Create data directory if it doesn't exist
-                os.makedirs('data', exist_ok=True)
 
-                history_file = os.path.join('data', 'history.json')
-                history_data = []
-
-                # Load existing history
-                if os.path.exists(history_file):
-                    with open(history_file, 'r') as f:
-                        history_data = json.load(f)
-
-                # Add new entry
-                new_entry = {
-                    'url': self.current_results['url_analysis']['normalized_url'],
-                    'risk_level': self.current_results['risk_assessment']['risk_level'],
-                    'score': self.current_results['risk_assessment']['overall_score'],
-                    'timestamp': datetime.now().isoformat()
-                }
-
-                # Remove duplicates
-                history_data = [item for item in history_data if item['url'] != new_entry['url']]
-                history_data.insert(0, new_entry)  # Add to beginning
-
-                # Keep only last 50 entries
-                history_data = history_data[:50]
-
-                # Save history
-                with open(history_file, 'w') as f:
-                    json.dump(history_data, f, indent=2)
-
-                # Update history list
-                self.history_list.clear()
-                for item in history_data:
-                    self.history_list.addItem(f"{item['url']} - {item['risk_level']}")
-
-                QMessageBox.information(self, "Saved", "Search saved to history!")
-
-            except Exception as e:
-                QMessageBox.warning(self, "Error", f"Could not save history: {e}")
-
-    def load_history_item(self, item):
-        """Load a history item into the search box"""
-        text = item.text()
-        url = text.split(' - ')[0]  # Extract URL from display text
-        self.url_input.setText(url)
-
-    def clear_history(self):
-        """Clear all search history"""
-        reply = QMessageBox.question(self, "Clear History",
-                                   "Are you sure you want to clear all search history?",
-                                   QMessageBox.Yes | QMessageBox.No)
-
-        if reply == QMessageBox.Yes:
-            try:
-                history_file = os.path.join('data', 'history.json')
-                if os.path.exists(history_file):
-                    os.remove(history_file)
-                self.history_list.clear()
-            except Exception as e:
-                QMessageBox.warning(self, "Error", f"Could not clear history: {e}")
-
-    def start_analysis(self):
-        """Start website analysis in separate thread"""
-        url = self.url_input.text().strip()
-        if not url:
-            QMessageBox.warning(self, "Input Error", "Please enter a URL to analyze")
+        if not self.current_results:
             return
 
-        # Disable UI during analysis
+        try:
+            os.makedirs("data", exist_ok=True)
+
+            file = os.path.join("data", "history.json")
+
+            data = []
+
+            if os.path.exists(file):
+                with open(file, "r") as f:
+                    data = json.load(f)
+
+            entry = {
+                "url": self.current_results["url_analysis"]["normalized_url"],
+                "risk_level": self.current_results["risk_assessment"]["risk_level"],
+                "score": self.current_results["risk_assessment"]["overall_score"],
+                "time": datetime.now().isoformat()
+            }
+
+            data = [i for i in data if i["url"] != entry["url"]]
+            data.insert(0, entry)
+            data = data[:50]
+
+            with open(file, "w") as f:
+                json.dump(data, f, indent=2)
+
+            self.history_list.clear()
+
+            for item in data:
+                self.history_list.addItem(
+                    f"{item['url']} - {item['risk_level']}"
+                )
+
+            QMessageBox.information(self, "Saved", "Saved successfully!")
+
+        except Exception as e:
+            QMessageBox.warning(self, "Error", str(e))
+
+
+    def load_history_item(self, item):
+
+        url = item.text().split(" - ")[0]
+        self.url_input.setText(url)
+
+
+    def clear_history(self):
+
+        reply = QMessageBox.question(
+            self,
+            "Clear History",
+            "Delete all history?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+
+        if reply == QMessageBox.Yes:
+
+            try:
+                file = os.path.join("data", "history.json")
+
+                if os.path.exists(file):
+                    os.remove(file)
+
+                self.history_list.clear()
+
+            except Exception as e:
+                QMessageBox.warning(self, "Error", str(e))
+
+
+    # =================================================
+    # ANALYSIS
+    # =================================================
+
+    def start_analysis(self):
+
+        url = self.url_input.text().strip()
+
+        if not url:
+            QMessageBox.warning(self, "Error", "Enter URL first")
+            return
+
         self.analyze_btn.setEnabled(False)
         self.save_btn.setEnabled(False)
-        self.progress_bar.setVisible(True)
-        self.progress_bar.setRange(0, 0)  # Indeterminate progress
 
-        # Start analysis thread
-        self.analysis_thread = AnalysisThread(url, self.settings)
-        self.analysis_thread.finished.connect(self.on_analysis_complete)
-        self.analysis_thread.error.connect(self.on_analysis_error)
-        self.analysis_thread.start()
+        self.progress.setVisible(True)
+        self.progress.setRange(0, 0)
 
-    def on_analysis_complete(self, results):
-        """Handle completed analysis"""
+        self.thread = AnalysisThread(url, self.settings)
+
+        self.thread.finished.connect(self.on_complete)
+        self.thread.error.connect(self.on_analysis_error)
+
+        self.thread.start()
+
+
+    def on_complete(self, results):
+
         self.analyze_btn.setEnabled(True)
-        self.progress_bar.setVisible(False)
-        self.save_btn.setEnabled(True)  # Enable save button
+        self.save_btn.setEnabled(True)
 
-        # Store current results for saving
+        self.progress.setVisible(False)
+
         self.current_results = results
 
-        # Display results (enhanced with API data)
-        self.display_enhanced_results(results)
+        self.display_results(results)
 
-    def on_analysis_error(self, error_message):
+
+    def on_analysis_error(self, msg):
         """Handle analysis errors"""
-        self.analyze_btn.setEnabled(True)
-        self.save_btn.setEnabled(False)
-        self.progress_bar.setVisible(False)
-        QMessageBox.critical(self, "Analysis Error", f"An error occurred: {error_message}")
 
-    def display_enhanced_results(self, results):
-        """Display results with API reputation data"""
-        risk = results['risk_assessment']
-        reputation = results.get('reputation', {})
+        print("ANALYSIS ERROR:", msg)
+
+        QMessageBox.critical(
+            self,
+            "Analysis Error",
+            f"Something went wrong:\n\n{msg}"
+        )
+
+
+    # =================================================
+    # RESULTS
+    # =================================================
+
+    def display_results(self, results):
+
+        risk = results["risk_assessment"]
+        score = risk["overall_score"]
+
+
+        # Status
+
+        if score >= 70:
+            emoji = "✅🟢"
+            status = "SAFE"
+            color = "#00ff00"
+
+        elif score >= 40:
+            emoji = "⚠️🟡"
+            status = "SUSPICIOUS"
+            color = "#ffcc00"
+
+        else:
+            emoji = "❌🔴"
+            status = "PHISHING"
+            color = "#ff4444"
+
+
+        self.results.setStyleSheet(f"color:{color};font-size:15px;")
+
 
         output = f"""
-=== SCAM ADVISOR ANALYSIS REPORT ===
+🛡️ SCAM ADVISOR REPORT
 
 Website: {results['url_analysis']['normalized_url']}
-Risk Level: {risk['risk_level']}
-Overall Score: {risk['overall_score']}/100
+
+Status: {emoji} {status}
+Score: {score}/100
+
 
 RISK FACTORS:
 """
-        for factor in risk['risk_factors']:
-            output += f"• {factor}\n"
 
-        # Add reputation information
-        output += f"""
-REPUTATION ANALYSIS:
-"""
+        for f in risk["risk_factors"]:
+            output += f"• {f}\n"
 
-        # VirusTotal results
-        vt_data = reputation.get('virustotal', {})
-        if 'detected' in vt_data:
-            output += f"• VirusTotal: {vt_data['detection_ratio']} vendors detected\n"
-        elif 'error' in vt_data:
-            output += f"• VirusTotal: {vt_data['error']}\n"
+
+        rep = results.get("reputation", {})
+
+        output += "\nREPUTATION:\n"
+
+        vt = rep.get("virustotal", {})
+        otx = rep.get("alienvault_otx", {})
+
+        if "detection_ratio" in vt:
+            output += f"• VirusTotal: {vt['detection_ratio']}\n"
         else:
-            output += "• VirusTotal: No data available\n"
+            output += "• VirusTotal: No data\n"
 
-        # OTX results
-        otx_data = reputation.get('alienvault_otx', {})
-        if 'pulse_count' in otx_data:
-            output += f"• AlienVault OTX: {otx_data['pulse_count']} threat intelligence pulses\n"
-        elif 'error' in otx_data:
-            output += f"• AlienVault OTX: {otx_data['error']}\n"
+        if "pulse_count" in otx:
+            output += f"• AlienVault: {otx['pulse_count']} pulses\n"
         else:
-            output += "• AlienVault OTX: No data available\n"
+            output += "• AlienVault: No data\n"
+
 
         output += f"""
-DETAILED ANALYSIS:
+
+DETAILS:
 - Domain: {results['url_analysis']['domain']}
 - HTTPS: {'Yes' if results['url_analysis']['is_https'] else 'No'}
 - Heuristic Score: {results['heuristics']['heuristic_score']}/100
-- Reputation Score: {reputation.get('reputation_score', 0)}/100
 """
 
-        self.results_display.setPlainText(output)
+        self.results.setPlainText(output)

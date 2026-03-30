@@ -19,6 +19,30 @@ ScamAdvisor is a professional website trust analyzer. It uses advanced algorithm
 
 This tool is especially useful for everyday internet users looking to stay safe online.
 
+## ⚙️ How It Works
+
+1. 🔗 **User Input**  
+   The user enters a website URL into the system.
+
+2. 🧹 **Feature Extraction**  
+   The system analyzes the URL and extracts important features such as:
+   - URL length  
+   - Presence of HTTPS  
+   - Number of special characters  
+   - Domain-related patterns  
+
+3. 🧠 **Machine Learning Analysis**  
+   The extracted features are passed into a trained Machine Learning model.
+
+4. 📊 **Prediction**  
+   The model evaluates the URL and classifies it as:
+   - ✅ Safe  
+   - ⚠️ Suspicious  
+   - 🚨 Malicious  
+
+5. 📢 **Result Display**  
+   The result is displayed to the user along with a risk indication.
+
 ## 🔧 System Requirements
 
 To run ScamAdvisor, you need the following:

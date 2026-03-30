@@ -1,64 +1,51 @@
-"""
-Domain Information Module
-WHOIS lookup and DNS record analysis
-"""
-
 import whois
 import dns.resolver
-from typing import Dict, Any
+from datetime import datetime
 
 
 class DomainInfo:
-    def get_whois_info(self, domain: str) -> Dict[str, Any]:
-        """Get WHOIS information for domain"""
+
+    def get_whois_info(self, domain):
+
         try:
-            domain_info = whois.whois(domain)
+            w = whois.whois(domain)
+
+            creation = w.creation_date
+
+            if isinstance(creation, list):
+                creation = creation[0]
+
+            if creation:
+                age_days = (datetime.now() - creation).days
+            else:
+                age_days = None
+
             return {
-                'registrar': domain_info.registrar,
-                'creation_date': domain_info.creation_date,
-                'expiration_date': domain_info.expiration_date,
-                'name_servers': domain_info.name_servers,
-                'status': domain_info.status
+                "domain_age_days": age_days,
+                "registrar": w.registrar
             }
-        except Exception as e:
-            return {'error': str(e)}
 
-    def get_dns_records(self, domain: str) -> Dict[str, Any]:
-        """Get DNS records for domain with enhanced analysis"""
+        except Exception:
+
+            return {
+                "domain_age_days": None,
+                "registrar": None
+            }
+
+
+    def get_dns_records(self, domain):
+
         records = {}
-        suspicious_patterns = []
 
         try:
-            # A records
-            a_records = dns.resolver.resolve(domain, 'A')
-            records['a_records'] = [str(r) for r in a_records]
-
-            # Check for suspicious IP patterns
-            for ip in records['a_records']:
-                if ip.startswith(('10.', '172.16.', '192.168.', '127.')):
-                    suspicious_patterns.append(f"Private IP address: {ip}")
-                elif ip.startswith('0.'):
-                    suspicious_patterns.append(f"Invalid IP range: {ip}")
+            for r in ["A", "MX", "NS"]:
+                try:
+                    answers = dns.resolver.resolve(domain, r)
+                    records[r] = [str(a) for a in answers]
+                except:
+                    records[r] = []
 
         except:
-            records['a_records'] = []
-            suspicious_patterns.append("No A records found")
-
-        try:
-            # MX records
-            mx_records = dns.resolver.resolve(domain, 'MX')
-            records['mx_records'] = [str(r) for r in mx_records]
-        except:
-            records['mx_records'] = []
-            suspicious_patterns.append("No MX records (uncommon for legitimate sites)")
-
-        try:
-            # TXT records (often used for verification)
-            txt_records = dns.resolver.resolve(domain, 'TXT')
-            records['txt_records'] = [str(r) for r in txt_records]
-        except:
-            records['txt_records'] = []
-
-        records['suspicious_dns_patterns'] = suspicious_patterns
+            pass
 
         return records

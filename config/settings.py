@@ -7,6 +7,7 @@ import configparser
 import os
 from typing import Dict, Any
 
+
 def load_settings() -> Dict[str, Any]:
     """Load application settings from INI file"""
     config = configparser.ConfigParser()
@@ -14,15 +15,17 @@ def load_settings() -> Dict[str, Any]:
 
     # Default settings
     default_settings = {
-        'theme': 'dark',
-        'api_keys': {
-            'virustotal': '',
-            'abuseipdb': '',
-            'otx': ''
+        "General": {
+            "theme": "dark",
+            "language": "en"
         },
-        'scanning': {
-            'timeout': '30',
-            'enable_caching': 'true'
+        "API": {
+            "virustotal_api_key": "",
+            "otx_api_key": ""
+        },
+        "Scanning": {
+            "timeout": "30",
+            "enable_caching": "true"
         }
     }
 
@@ -41,6 +44,7 @@ def load_settings() -> Dict[str, Any]:
             settings[section][key] = value
 
     return settings
+
 
 def save_settings(settings: Dict[str, Any]):
     """Save application settings to INI file"""
