@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 PyQt5>=5.15.0
 requests>=2.25.0
 python-whois>=0.8.0
+=======
+PyQt5>=5.15.0
+requests>=2.25.0
+python-whois>=0.8.0
+>>>>>>> 1908549908e3dd7f8114b6a66ee665130cc4a841
 dnspython>=2.1.0
