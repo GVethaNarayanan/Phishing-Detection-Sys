@@ -39,7 +39,7 @@ python main.py
 ```
 
 
-
+---
 ## 📸 Screenshots
 
 ### Main Interface  
@@ -50,3 +50,71 @@ python main.py
 
 ### Result Screen  
 ![Result Screen](result.png)
+
+
+---
+
+## 🧠 Tech Stack
+
+- Python  
+- Machine Learning  
+- Scikit-learn  
+- PyQt (GUI)  
+- Requests / APIs  
+
+---
+
+## 📁 Project Structure
+
+
+ScamAdvisor/
+│── core/ # Core logic
+│── gui/ # User interface
+│── data/ # Data & history
+│── config/ # Config files
+│── main.py # Entry point
+│── requirements.txt # Dependencies
+
+---
+
+## 🔍 Example Use Case
+
+1. User enters a suspicious website URL  
+2. ScamAdvisor analyzes the website  
+3. Detects phishing patterns and security risks  
+4. Outputs result:  
+   - ✅ Safe  
+   - ⚠️ Suspicious  
+   - 🚨 Malicious  
+
+---
+
+## 🚀 Future Improvements
+
+- 🌐 Browser extension integration  
+- 📱 Mobile application  
+- 🤖 Advanced Machine Learning models  
+- ☁️ Cloud-based deployment  
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome!
+
+1. Fork the repository  
+2. Create a new branch  
+3. Make your changes  
+4. Submit a Pull Request  
+
+---
+
+## 📞 Contact
+
+GitHub: https://github.com/GVethaNarayanan  
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
