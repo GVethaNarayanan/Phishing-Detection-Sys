@@ -2,13 +2,7 @@
 
 ## 🚀 Overview
 
-ScamAdvisor is an intelligent system that analyzes websites and detects whether they are safe or malicious. It helps users identify phishing websites and avoid online scams using Machine Learning techniques.
-
----
-
-## 🌍 Why This Project?
-
-With the increasing number of phishing attacks and online scams, users often struggle to identify malicious websites. ScamAdvisor provides a simple and effective solution to enhance online safety.
+ScamAdvisor is an intelligent system that analyzes websites and detects whether they are safe or malicious. It helps users identify phishing websites and avoid online scams.
 
 ---
 
@@ -17,7 +11,7 @@ With the increasing number of phishing attacks and online scams, users often str
 1. 🔗 User enters a website URL  
 2. 🧹 The system extracts features (URL structure, HTTPS, patterns)  
 3. 🧠 A Machine Learning model analyzes the features  
-4. 📊 The system predicts:
+4. 📊 The system predicts:  
    - ✅ Safe  
    - ⚠️ Suspicious  
    - 🚨 Malicious  
@@ -27,11 +21,11 @@ With the increasing number of phishing attacks and online scams, users often str
 
 ## 🌟 Features
 
-- 🔍 Real-time website analysis  
-- 🚨 Phishing detection using ML  
-- 🔐 SSL verification  
-- 📊 Risk score generation  
-- 🖥️ User-friendly interface  
+- 🔍 Website Analysis  
+- 🚨 Phishing Detection  
+- 🔐 SSL Verification  
+- 📊 Risk Score Generation  
+- 🖥️ User-Friendly Interface  
 
 ---
 
@@ -42,6 +36,9 @@ git clone https://github.com/GVethaNarayanan/Phishing-Detection-Sys.git
 cd Phishing-Detection-Sys
 pip install -r requirements.txt
 python main.py
+```
+
+
 
 ## 📸 Screenshots
 
@@ -53,11 +50,3 @@ python main.py
 
 ### Result Screen  
 ![Result Screen](result.png)
-
-📞 Contact
-
-GitHub: https://github.com/GVethaNarayanan
-
-📄 License
-
-MIT License
