@@ -8,14 +8,27 @@ ScamAdvisor is an intelligent system that analyzes websites and detects whether 
 
 ## ⚙️ How It Works
 
-1. 🔗 User enters a website URL  
-2. 🧹 The system extracts features (URL structure, HTTPS, patterns)  
-3. 🧠 A Machine Learning model analyzes the features  
-4. 📊 The system predicts:  
-   - ✅ Safe  
-   - ⚠️ Suspicious  
-   - 🚨 Malicious  
-5. 📢 Results are displayed with risk indication  
+1. 🌐 User enters a website URL  
+2. 🧹 System extracts features (URL patterns, HTTPS, etc.)  
+3. 🧠 Machine Learning model analyzes the data  
+4. 📊 Generates a risk score  
+5. 🟢 Classifies the site as:
+   - Safe  
+   - Suspicious  
+   - Malicious  
+6. 📢 Displays result in an interactive GUI    
+
+---
+
+## 🛡️ Risk Level Classification
+
+The system classifies websites into three categories:
+
+- 🟢 **Safe** – Trusted and secure websites  
+- 🟡 **Suspicious** – Potentially risky websites  
+- 🔴 **Malicious** – High-risk phishing or harmful websites  
+
+This helps users quickly understand the safety level of a website.
 
 ---
 
@@ -25,7 +38,8 @@ ScamAdvisor is an intelligent system that analyzes websites and detects whether 
 - 🚨 Phishing Detection  
 - 🔐 SSL Verification  
 - 📊 Risk Score Generation  
-- 🖥️ User-Friendly Interface  
+- 🟢 Risk Level Classification (Safe / Suspicious / Malicious)  
+- 🖥️ User-Friendly Interface 
 
 ---
 
@@ -92,9 +106,9 @@ ScamAdvisor/
 ## 🚀 Future Improvements
 
 - 🌐 Browser extension integration  
-- 📱 Mobile application  
-- 🤖 Advanced Machine Learning models  
-- ☁️ Cloud-based deployment  
+- 🤖 Advanced ML models  
+- ☁️ Cloud deployment  
+- 📊 Detailed analytics dashboard
 
 ---
 
