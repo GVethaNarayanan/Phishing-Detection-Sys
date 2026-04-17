@@ -91,9 +91,6 @@ ScamAdvisor/
 
 ---
 
-# 🥉 3. 📊 Output Explanation (VERY PROFESSIONAL)
-
-```md
 ## 📊 Output Explanation
 
 The system provides:
