@@ -91,15 +91,19 @@ ScamAdvisor/
 
 ---
 
-## 🔍 Example Use Case
+# 🥉 3. 📊 Output Explanation (VERY PROFESSIONAL)
 
-1. User enters a suspicious website URL  
-2. ScamAdvisor analyzes the website  
-3. Detects phishing patterns and security risks  
-4. Outputs result:  
-   - ✅ Safe  
-   - ⚠️ Suspicious  
-   - 🚨 Malicious  
+```md
+## 📊 Output Explanation
+
+The system provides:
+
+- 🔢 Risk Score (0–100)
+- 🟢 Risk Level Classification
+- 🔍 Detection insights based on:
+  - URL patterns  
+  - SSL status  
+  - External threat intelligence  
 
 ---
 
